@@ -1,20 +1,24 @@
 import {
-  AlipayCircleOutlined,
   LockOutlined,
-  MobileOutlined,
-  TaobaoCircleOutlined,
   UserOutlined,
-  WeiboCircleOutlined,
+  WechatOutlined,
+  MailOutlined,
+  AppstoreOutlined,
 } from '@ant-design/icons';
-import { Alert, Space, message, Tabs } from 'antd';
+import { Alert, Space, message, Tabs, Modal, Button } from 'antd';
 import React, { useState } from 'react';
 import ProForm, { ProFormCaptcha, ProFormCheckbox, ProFormText } from '@ant-design/pro-form';
-import { useIntl, Link, history, FormattedMessage, SelectLang, useModel } from 'umi';
+import { Link, history, FormattedMessage, useModel } from 'umi';
 import Footer from '@/components/Footer';
-import { login } from '@/services/ant-design-pro/api';
-import { getFakeCaptcha } from '@/services/ant-design-pro/login';
+import { login, register } from '@/services/ant-design-pro/api';
+import { getEmailCaptcha, getWxQRCode, getWxQRCodeStatus } from '@/services/ant-design-pro/login';
+import { parse } from 'querystring';
 
 import styles from './index.less';
+
+const { search } = history.location;
+const param = parse(search.substr(1));
+const { redirect } = param as { redirect: string };
 
 const LoginMessage: React.FC<{
   content: string;
@@ -31,84 +35,146 @@ const LoginMessage: React.FC<{
 
 const Login: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
-  const [userLoginState, setUserLoginState] = useState<API.LoginResult>({});
+  const [userLoginState, setUserLoginState] = useState<API.ApiRespond<undefined>>({
+    code: 0,
+    msg: '',
+    data: undefined,
+  });
   const [type, setType] = useState<string>('account');
   const { initialState, setInitialState } = useModel('@@initialState');
-
-  const intl = useIntl();
 
   const fetchUserInfo = async () => {
     const userInfo = await initialState?.fetchUserInfo?.();
     if (userInfo) {
-      await setInitialState((s) => ({
+      await setInitialState((s: any) => ({
         ...s,
         currentUser: userInfo,
       }));
     }
   };
 
-  const handleSubmit = async (values: API.LoginParams) => {
+  const loginForm = async (values: API.LoginParams) => {
     setSubmitting(true);
     try {
       // 登录
       const msg = await login({ ...values, type });
-      if (msg.status === 'ok') {
-        const defaultLoginSuccessMessage = intl.formatMessage({
-          id: 'pages.login.success',
-          defaultMessage: '登录成功！',
-        });
-        message.success(defaultLoginSuccessMessage);
+      if (msg.code === 0) {
+        message.success('登录成功！');
+        if (redirect === 'scriptcat') {
+          window.close();
+          return;
+        }
         await fetchUserInfo();
-        /** 此方法会跳转到 redirect 参数所在的位置 */
-        if (!history) return;
-        const { query } = history.location;
-        const { redirect } = query as { redirect: string };
         history.push(redirect || '/');
         return;
       }
       // 如果失败去设置用户错误信息
       setUserLoginState(msg);
     } catch (error) {
-      const defaultLoginFailureMessage = intl.formatMessage({
-        id: 'pages.login.failure',
-        defaultMessage: '登录失败，请重试！',
-      });
-
-      message.error(defaultLoginFailureMessage);
+      message.error('登录失败，请重试！');
     }
     setSubmitting(false);
   };
-  const { status, type: loginType } = userLoginState;
+
+  const registerForm = async (values: API.LoginParams) => {
+    setSubmitting(true);
+    try {
+      // 登录
+      const msg = await register({ ...values, type });
+      if (msg.code === 0) {
+        message.success('注册成功！快去登录吧！');
+        setType('account');
+        setSubmitting(false);
+        return;
+      }
+      // 如果失败去设置用户错误信息
+      setUserLoginState(msg);
+    } catch (error) {
+      message.error('登录失败，请重试！');
+    }
+    setSubmitting(false);
+  };
+
+  const handleSubmit = (values: API.LoginParams) => {
+    setUserLoginState({ code: 0, msg: '', data: undefined });
+    if (type === 'account') {
+      loginForm(values);
+    } else {
+      registerForm(values);
+    }
+  };
+
+  const [isShowWxQRCode, setIsShowWxQRCode] = useState(false);
+
+  const [wxQRCodeUrl, setWxQRCodeUrl] = useState({ url: '/assert/image/wxsvc.png', code: '' });
+  // 显示微信二维码
+  const showWxQRCode = async () => {
+    try {
+      setIsShowWxQRCode(true);
+      const ret = await getWxQRCode();
+      setWxQRCodeUrl(ret.data);
+      const handle = async (isshow: boolean) => {
+        if (isshow) {
+          try {
+            const status = await getWxQRCodeStatus(ret.data.code);
+            if (status.code === 0) {
+              if (redirect === 'scriptcat') {
+                window.close();
+              }
+            } else {
+              setTimeout(() => {
+                setIsShowWxQRCode((v) => {
+                  handle(v);
+                  return v;
+                });
+              }, 1000);
+            }
+          } catch (e) {
+            message.error('系统或者网络发送错误！微信扫码请求失败！');
+            return setIsShowWxQRCode(false);
+          }
+        }
+        return true;
+      };
+      return setTimeout(() => {
+        setIsShowWxQRCode((v) => {
+          handle(v);
+          return v;
+        });
+      }, 1000);
+    } catch {
+      message.error('微信二维码获取失败！');
+      return setIsShowWxQRCode(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsShowWxQRCode(false);
+  };
+
+  const { code, msg } = userLoginState;
 
   return (
     <div className={styles.container}>
-      <div className={styles.lang} data-lang>
-        {SelectLang && <SelectLang />}
-      </div>
       <div className={styles.content}>
         <div className={styles.top}>
           <div className={styles.header}>
             <Link to="/">
-              <img alt="logo" className={styles.logo} src="/logo.svg" />
-              <span className={styles.title}>Ant Design</span>
+              <img alt="logo" className={styles.logo} src="/logo.png" />
+              <span className={styles.title}>CloudCat</span>
             </Link>
           </div>
-          <div className={styles.desc}>
-            {intl.formatMessage({ id: 'pages.layouts.userLayout.title' })}
-          </div>
+          <div className={styles.desc}>CloudCat 在云端执行你的ScriptCat脚本</div>
         </div>
 
         <div className={styles.main}>
           <ProForm
             initialValues={{
-              autoLogin: true,
+              auto_login: true,
             }}
             submitter={{
               searchConfig: {
-                submitText: intl.formatMessage({
-                  id: 'pages.login.submit',
-                  defaultMessage: '登录',
-                }),
+                submitText: type === 'account' ? '登录' : '注册',
               },
               render: (_, dom) => dom.pop(),
               submitButtonProps: {
@@ -124,30 +190,11 @@ const Login: React.FC = () => {
             }}
           >
             <Tabs activeKey={type} onChange={setType}>
-              <Tabs.TabPane
-                key="account"
-                tab={intl.formatMessage({
-                  id: 'pages.login.accountLogin.tab',
-                  defaultMessage: '账户密码登录',
-                })}
-              />
-              <Tabs.TabPane
-                key="mobile"
-                tab={intl.formatMessage({
-                  id: 'pages.login.phoneLogin.tab',
-                  defaultMessage: '手机号登录',
-                })}
-              />
+              <Tabs.TabPane key="account" tab="登录" />
+              <Tabs.TabPane key="register" tab="注册" />
             </Tabs>
 
-            {status === 'error' && loginType === 'account' && (
-              <LoginMessage
-                content={intl.formatMessage({
-                  id: 'pages.login.accountLogin.errorMessage',
-                  defaultMessage: '账户或密码错误(admin/ant.design)',
-                })}
-              />
-            )}
+            {code !== 0 && <LoginMessage content={msg} />}
             {type === 'account' && (
               <>
                 <ProFormText
@@ -156,19 +203,11 @@ const Login: React.FC = () => {
                     size: 'large',
                     prefix: <UserOutlined className={styles.prefixIcon} />,
                   }}
-                  placeholder={intl.formatMessage({
-                    id: 'pages.login.username.placeholder',
-                    defaultMessage: '用户名: admin or user',
-                  })}
+                  placeholder="用户名或邮箱"
                   rules={[
                     {
                       required: true,
-                      message: (
-                        <FormattedMessage
-                          id="pages.login.username.required"
-                          defaultMessage="请输入用户名!"
-                        />
-                      ),
+                      message: '请输入用户名或邮箱',
                     },
                   ]}
                 />
@@ -178,56 +217,70 @@ const Login: React.FC = () => {
                     size: 'large',
                     prefix: <LockOutlined className={styles.prefixIcon} />,
                   }}
-                  placeholder={intl.formatMessage({
-                    id: 'pages.login.password.placeholder',
-                    defaultMessage: '密码: ant.design',
-                  })}
+                  placeholder="密码"
                   rules={[
                     {
                       required: true,
-                      message: (
-                        <FormattedMessage
-                          id="pages.login.password.required"
-                          defaultMessage="请输入密码！"
-                        />
-                      ),
+                      message: '请输入密码！',
                     },
                   ]}
                 />
+                <div
+                  style={{
+                    marginBottom: '24px',
+                  }}
+                >
+                  <ProFormCheckbox noStyle name="auto_login">
+                    <FormattedMessage id="pages.login.rememberMe" defaultMessage="自动登录" />
+                  </ProFormCheckbox>
+                  <a
+                    style={{
+                      float: 'right',
+                    }}
+                    onClick={() => setType('register')}
+                  >
+                    注册账号
+                  </a>
+                </div>
               </>
             )}
 
-            {status === 'error' && loginType === 'mobile' && <LoginMessage content="验证码错误" />}
-            {type === 'mobile' && (
+            {type === 'register' && (
               <>
                 <ProFormText
                   fieldProps={{
                     size: 'large',
-                    prefix: <MobileOutlined className={styles.prefixIcon} />,
+                    prefix: <UserOutlined className={styles.prefixIcon} />,
                   }}
-                  name="mobile"
-                  placeholder={intl.formatMessage({
-                    id: 'pages.login.phoneNumber.placeholder',
-                    defaultMessage: '手机号',
-                  })}
+                  name="username"
+                  placeholder="用户名"
                   rules={[
                     {
                       required: true,
-                      message: (
-                        <FormattedMessage
-                          id="pages.login.phoneNumber.required"
-                          defaultMessage="请输入手机号！"
-                        />
-                      ),
+                      message: '请输入用户名',
                     },
                     {
-                      pattern: /^1\d{10}$/,
-                      message: (
-                        <FormattedMessage
-                          id="pages.login.phoneNumber.invalid"
-                          defaultMessage="手机号格式错误！"
-                        />
-                      ),
+                      min: 3,
+                      max: 10,
+                      message: '用户名格式错误,请输入3-10个字符！',
+                    },
+                  ]}
+                />
+                <ProFormText
+                  fieldProps={{
+                    size: 'large',
+                    prefix: <MailOutlined className={styles.prefixIcon} />,
+                  }}
+                  name="email"
+                  placeholder="邮箱"
+                  rules={[
+                    {
+                      required: true,
+                      message: '请输入邮箱',
+                    },
+                    {
+                      type: 'email',
+                      message: '请输入合法的邮箱',
                     },
                   ]}
                 />
@@ -239,21 +292,12 @@ const Login: React.FC = () => {
                   captchaProps={{
                     size: 'large',
                   }}
-                  placeholder={intl.formatMessage({
-                    id: 'pages.login.captcha.placeholder',
-                    defaultMessage: '请输入验证码',
-                  })}
+                  placeholder="请输入验证码"
                   captchaTextRender={(timing, count) => {
                     if (timing) {
-                      return `${count} ${intl.formatMessage({
-                        id: 'pages.getCaptchaSecondText',
-                        defaultMessage: '获取验证码',
-                      })}`;
+                      return `${count} 秒后重新获取`;
                     }
-                    return intl.formatMessage({
-                      id: 'pages.login.phoneLogin.getVerificationCode',
-                      defaultMessage: '获取验证码',
-                    });
+                    return '获取验证码';
                   }}
                   name="captcha"
                   rules={[
@@ -266,42 +310,104 @@ const Login: React.FC = () => {
                         />
                       ),
                     },
+                    {
+                      pattern: /^\d{6}$/,
+                      message: '请输入6位数字的验证码',
+                    },
                   ]}
-                  onGetCaptcha={async (phone) => {
-                    const result = await getFakeCaptcha({
-                      phone,
-                    });
-                    if (result === false) {
+                  phoneName="email"
+                  onGetCaptcha={async (email) => {
+                    const result = await getEmailCaptcha(email);
+                    if (result.code !== 0) {
+                      message.error(result.msg);
                       return;
                     }
-                    message.success('获取验证码成功！验证码为：1234');
+                    message.success('获取验证码成功！请注意查收！');
                   }}
                 />
+                <ProFormText.Password
+                  name="password"
+                  fieldProps={{
+                    size: 'large',
+                    prefix: <LockOutlined className={styles.prefixIcon} />,
+                  }}
+                  placeholder="密码"
+                  rules={[
+                    {
+                      required: true,
+                      message: '请输入密码！',
+                    },
+                    {
+                      min: 8,
+                      max: 16,
+                      message: '请输入8-16位密码',
+                    },
+                  ]}
+                />
+                <ProFormText.Password
+                  name="repassword"
+                  fieldProps={{
+                    size: 'large',
+                    prefix: <LockOutlined className={styles.prefixIcon} />,
+                  }}
+                  placeholder="确认密码"
+                  rules={[
+                    {
+                      required: true,
+                      message: '请再输入一次密码！',
+                    },
+                    {
+                      min: 8,
+                      max: 16,
+                      message: '请输入8-16位密码',
+                    },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || getFieldValue('password') === value) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(new Error('两次输入的密码必须匹配'));
+                      },
+                    }),
+                  ]}
+                />
+                <div
+                  style={{
+                    marginBottom: 24,
+                  }}
+                >
+                  <a
+                    style={{
+                      float: 'right',
+                      marginBottom: 24,
+                    }}
+                    onClick={() => setType('account')}
+                  >
+                    我有账号，前去登录
+                  </a>
+                </div>
               </>
             )}
-            <div
-              style={{
-                marginBottom: 24,
-              }}
-            >
-              <ProFormCheckbox noStyle name="autoLogin">
-                <FormattedMessage id="pages.login.rememberMe" defaultMessage="自动登录" />
-              </ProFormCheckbox>
-              <a
-                style={{
-                  float: 'right',
-                }}
-              >
-                <FormattedMessage id="pages.login.forgotPassword" defaultMessage="忘记密码" />
-              </a>
-            </div>
           </ProForm>
           <Space className={styles.other}>
-            <FormattedMessage id="pages.login.loginWith" defaultMessage="其他登录方式" />
-            <AlipayCircleOutlined className={styles.icon} />
-            <TaobaoCircleOutlined className={styles.icon} />
-            <WeiboCircleOutlined className={styles.icon} />
+            <WechatOutlined className={styles.icon} onClick={showWxQRCode} />
+            <AppstoreOutlined className={styles.icon} />
           </Space>
+          <Modal
+            title="微信扫码登录"
+            visible={isShowWxQRCode}
+            onCancel={handleCancel}
+            footer={[
+              <Button key="close" onClick={handleCancel}>
+                关闭
+              </Button>,
+            ]}
+            style={{
+              textAlign: 'center',
+            }}
+          >
+            <img src={wxQRCodeUrl.url} width="200px" height="200px" />
+          </Modal>
         </div>
       </div>
       <Footer />

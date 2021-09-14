@@ -2,25 +2,10 @@
 /* eslint-disable */
 
 declare namespace API {
-  type CurrentUser = {
-    name?: string;
-    avatar?: string;
-    userid?: string;
-    email?: string;
-    signature?: string;
-    title?: string;
-    group?: string;
-    tags?: { key?: string; label?: string }[];
-    notifyCount?: number;
-    unreadCount?: number;
-    country?: string;
-    access?: string;
-    geographic?: {
-      province?: { label?: string; key?: string };
-      city?: { label?: string; key?: string };
-    };
-    address?: string;
-    phone?: string;
+  type UserInfo = {
+    id: number;
+    username: string;
+    role: string;
   };
 
   type LoginResult = {
@@ -97,5 +82,16 @@ declare namespace API {
     datetime?: string;
     description?: string;
     type?: NoticeIconItemType;
+  };
+
+  type ApiRespond<T> = {
+    code: number;
+    msg: string;
+    data: T;
+  };
+
+  type WXQRCode = {
+    url: string;
+    code: string;
   };
 }

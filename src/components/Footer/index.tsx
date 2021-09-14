@@ -1,13 +1,8 @@
-import { useIntl } from 'umi';
 import { GithubOutlined } from '@ant-design/icons';
 import { DefaultFooter } from '@ant-design/pro-layout';
 
 export default () => {
-  const intl = useIntl();
-  const defaultMessage = intl.formatMessage({
-    id: 'app.copyright.produced',
-    defaultMessage: '蚂蚁集团体验技术部出品',
-  });
+  const defaultMessage = 'CloudCat - ScriptCat';
 
   const currentYear = new Date().getFullYear();
 
@@ -16,21 +11,21 @@ export default () => {
       copyright={`${currentYear} ${defaultMessage}`}
       links={[
         {
-          key: 'Ant Design Pro',
-          title: 'Ant Design Pro',
-          href: 'https://pro.ant.design',
+          key: '云猫',
+          title: '云猫',
+          href: 'https://docs.scriptcat.org/dev/cloudcat.html',
           blankTarget: true,
         },
         {
           key: 'github',
           title: <GithubOutlined />,
-          href: 'https://github.com/ant-design/ant-design-pro',
+          href: 'https://github.com/scriptscat/cloudcat',
           blankTarget: true,
         },
         {
-          key: 'Ant Design',
-          title: 'Ant Design',
-          href: 'https://ant.design',
+          key: '脚本猫',
+          title: '脚本猫',
+          href: 'https://docs.scriptcat.org/',
           blankTarget: true,
         },
       ]}
