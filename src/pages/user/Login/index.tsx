@@ -118,9 +118,13 @@ const Login: React.FC = () => {
           try {
             const status = await getWxQRCodeStatus(ret.data.code);
             if (status.code === 0) {
+              message.success('登录成功！');
               if (redirect === 'scriptcat') {
                 window.close();
+                return;
               }
+              await fetchUserInfo();
+              history.push(redirect || '/');
             } else {
               setTimeout(() => {
                 setIsShowWxQRCode((v) => {
@@ -131,10 +135,9 @@ const Login: React.FC = () => {
             }
           } catch (e) {
             message.error('系统或者网络发送错误！微信扫码请求失败！');
-            return setIsShowWxQRCode(false);
+            setIsShowWxQRCode(false);
           }
         }
-        return true;
       };
       return setTimeout(() => {
         setIsShowWxQRCode((v) => {
