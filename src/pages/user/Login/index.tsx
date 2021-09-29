@@ -394,7 +394,16 @@ const Login: React.FC = () => {
           </ProForm>
           <Space className={styles.other}>
             <WechatOutlined className={styles.icon} onClick={showWxQRCode} />
-            <AppstoreOutlined className={styles.icon} />
+            <a
+              href={
+                '/api/v1/auth/bbs?redirect=' +
+                encodeURIComponent(
+                  redirect == 'scriptcat' ? '/user/login/?redirect=scriptcat' : redirect,
+                )
+              }
+            >
+              <AppstoreOutlined className={styles.icon} />
+            </a>
           </Space>
           <Modal
             title="微信扫码登录"

@@ -4,11 +4,16 @@ import { request } from 'umi';
 
 /** 获取当前的用户 GET /api/v1/user */
 export async function currentUser(options?: { [key: string]: any }) {
-  return request<{
-    data: API.ApiRespond<API.UserInfo>;
-  }>('/api/v1/user', {
-    method: 'GET',
-    ...(options || {}),
+  return new Promise<API.ApiRespond<API.UserInfo>>(async (resolve, reject) => {
+    let ret = await request<API.ApiRespond<API.UserInfo>>('/api/v1/user', {
+      method: 'GET',
+      ...(options || {}),
+    });
+    if (ret.code === 0) {
+      return resolve(ret);
+    } else {
+      reject(ret.msg);
+    }
   });
 }
 

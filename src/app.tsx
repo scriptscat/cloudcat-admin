@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
 import { BookOutlined, LinkOutlined } from '@ant-design/icons';
 import { message } from 'antd';
+import { parse } from 'querystring';
 
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
@@ -58,20 +59,37 @@ export async function getInitialState(): Promise<{
   const fetchUserInfo = async () => {
     try {
       const msg = await queryCurrentUser();
-      return msg.data;
+      return msg;
     } catch (error) {
       history.push(loginPath);
     }
     return undefined;
   };
   // 如果是登录页面，不执行
-  if (history.location.pathname !== loginPath) {
+  if (!history.location.pathname.startsWith(loginPath)) {
     const currentUser = await fetchUserInfo();
     return {
       fetchUserInfo,
       currentUser,
       settings: {},
     };
+  }
+  // 是登录页面判断redirect是否为scriptcat,是查询是否登录,然后close
+  const { search } = history.location;
+  const param = parse(search.substr(1));
+  const { redirect } = param as { redirect: string };
+  if (redirect === 'scriptcat') {
+    try {
+      const msg = await queryCurrentUser();
+      window.close();
+      return {
+        fetchUserInfo,
+        currentUser: msg,
+        settings: {},
+      };
+    } catch (error) {
+      console.log('redirect error: ' + error);
+    }
   }
   return {
     fetchUserInfo,
@@ -91,7 +109,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     onPageChange: () => {
       const { location } = history;
       // 如果没有登录，重定向到 login
-      if (!initialState?.currentUser && location.pathname !== loginPath) {
+      if (!initialState?.currentUser && !location.pathname.startsWith(loginPath)) {
         history.push(loginPath);
       }
     },
