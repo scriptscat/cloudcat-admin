@@ -5,6 +5,7 @@ declare namespace API {
   type UserInfo = {
     id: number;
     username: string;
+    avatar: string;
     role: string;
   };
 

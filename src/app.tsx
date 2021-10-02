@@ -53,13 +53,13 @@ export const request: RequestConfig = {
  * */
 export async function getInitialState(): Promise<{
   settings?: Partial<LayoutSettings>;
-  currentUser?: API.ApiRespond<API.UserInfo>;
-  fetchUserInfo?: () => Promise<API.ApiRespond<API.UserInfo> | undefined>;
+  currentUser?: API.UserInfo;
+  fetchUserInfo?: () => Promise<API.UserInfo | undefined>;
 }> {
   const fetchUserInfo = async () => {
     try {
       const msg = await queryCurrentUser();
-      return msg;
+      return msg.data;
     } catch (error) {
       history.push(loginPath);
     }
@@ -84,7 +84,7 @@ export async function getInitialState(): Promise<{
       window.close();
       return {
         fetchUserInfo,
-        currentUser: msg,
+        currentUser: msg.data,
         settings: {},
       };
     } catch (error) {
@@ -103,7 +103,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     rightContentRender: () => <RightContent />,
     disableContentMargin: false,
     waterMarkProps: {
-      content: initialState?.currentUser?.name,
+      content: initialState?.currentUser?.username,
     },
     footerRender: () => <Footer />,
     onPageChange: () => {
@@ -115,15 +115,15 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     },
     links: isDev
       ? [
-          <Link to="/umi/plugin/openapi" target="_blank">
-            <LinkOutlined />
-            <span>OpenAPI 文档</span>
-          </Link>,
-          <Link to="/~docs">
-            <BookOutlined />
-            <span>业务组件文档</span>
-          </Link>,
-        ]
+        <Link to="/umi/plugin/openapi" target="_blank">
+          <LinkOutlined />
+          <span>OpenAPI 文档</span>
+        </Link>,
+        <Link to="/~docs">
+          <BookOutlined />
+          <span>业务组件文档</span>
+        </Link>,
+      ]
       : [],
     menuHeaderRender: undefined,
     // 自定义 403 页面

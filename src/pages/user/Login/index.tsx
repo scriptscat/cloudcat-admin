@@ -398,7 +398,7 @@ const Login: React.FC = () => {
               href={
                 '/api/v1/auth/bbs?redirect=' +
                 encodeURIComponent(
-                  redirect == 'scriptcat' ? '/user/login/?redirect=scriptcat' : redirect,
+                  redirect == 'scriptcat' ? '/user/login/?redirect=scriptcat' : (redirect || '/'),
                 )
               }
             >
