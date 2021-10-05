@@ -1,7 +1,7 @@
 import React from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Card, Alert, Typography } from 'antd';
-import { useIntl, FormattedMessage } from 'umi';
+import { useModel } from 'umi';
 import styles from './Welcome.less';
 
 const CodePreview: React.FC = ({ children }) => (
@@ -13,15 +13,14 @@ const CodePreview: React.FC = ({ children }) => (
 );
 
 export default (): React.ReactNode => {
-  const intl = useIntl();
+  const { initialState } = useModel('@@initialState');
+  const { currentUser } = initialState!;
+
   return (
     <PageContainer>
       <Card>
         <Alert
-          message={intl.formatMessage({
-            id: 'pages.welcome.alertMessage',
-            defaultMessage: 'Faster and stronger heavy-duty components have been released.',
-          })}
+          message={`${currentUser!.username},欢迎登录云猫后台`}
           type="success"
           showIcon
           banner
@@ -30,33 +29,70 @@ export default (): React.ReactNode => {
             marginBottom: 24,
           }}
         />
-        <Typography.Text strong>
-          <FormattedMessage id="pages.welcome.advancedComponent" defaultMessage="Advanced Form" />{' '}
+        <Typography.Text
+          strong
+        >
+          更多功能建设中... {'  '}
           <a
-            href="https://procomponents.ant.design/components/table"
+            href="https://github.com/scriptscat/scriptcat/projects/1"
             rel="noopener noreferrer"
             target="__blank"
           >
-            <FormattedMessage id="pages.welcome.link" defaultMessage="Welcome" />
+            查看我们的开发计划
           </a>
         </Typography.Text>
-        <CodePreview>yarn add @ant-design/pro-table</CodePreview>
+        <br />
         <Typography.Text
           strong
           style={{
             marginBottom: 12,
           }}
         >
-          <FormattedMessage id="pages.welcome.advancedLayout" defaultMessage="Advanced layout" />{' '}
           <a
-            href="https://procomponents.ant.design/components/layout"
+            href="https://github.com/scriptscat/scriptcat"
             rel="noopener noreferrer"
             target="__blank"
           >
-            <FormattedMessage id="pages.welcome.link" defaultMessage="Welcome" />
+            脚本猫
           </a>
         </Typography.Text>
-        <CodePreview>yarn add @ant-design/pro-layout</CodePreview>
+        <CodePreview>
+          git clone git@github.com:scriptscat/scriptcat.git
+        </CodePreview>
+        <Typography.Text
+          strong
+          style={{
+            marginBottom: 12,
+          }}
+        >
+          <a
+            href="https://github.com/scriptscat/cloudcat-frontend"
+            rel="noopener noreferrer"
+            target="__blank"
+          >
+            云猫前端
+          </a>
+        </Typography.Text>
+        <CodePreview>
+          git clone git@github.com:scriptscat/cloudcat-frontend.git
+        </CodePreview>
+        <Typography.Text
+          strong
+          style={{
+            marginBottom: 12,
+          }}
+        >
+          <a
+            href="https://github.com/scriptscat/cloudcat-frontend"
+            rel="noopener noreferrer"
+            target="__blank"
+          >
+            云猫后端
+          </a>
+        </Typography.Text>
+        <CodePreview>
+          git clone git@github.com:scriptscat/cloudcat.git
+        </CodePreview>
       </Card>
     </PageContainer>
   );

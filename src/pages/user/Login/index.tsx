@@ -396,10 +396,9 @@ const Login: React.FC = () => {
             <WechatOutlined className={styles.icon} onClick={showWxQRCode} />
             <a
               href={
-                '/api/v1/auth/bbs?redirect=' +
-                encodeURIComponent(
-                  redirect == 'scriptcat' ? '/user/login/?redirect=scriptcat' : (redirect || '/'),
-                )
+                `/api/v1/auth/bbs?redirect=${encodeURIComponent(
+                  redirect === 'scriptcat' ? '/user/login/?redirect=scriptcat' : (redirect || '/'),
+                )}`
               }
             >
               <AppstoreOutlined className={styles.icon} />

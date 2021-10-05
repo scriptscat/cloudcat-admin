@@ -43,10 +43,19 @@
     ],
   },
   {
-    name: 'list.table-list',
-    icon: 'table',
-    path: '/list',
-    component: './TableList',
+    path: '/account',
+    routes: [
+      {
+        path: '/account/center',
+        name: '个人中心',
+        component: './account/Center',
+      },
+      {
+        path: '/account/settings',
+        name: '个人设置',
+        component: './account/Settings',
+      }
+    ]
   },
   {
     path: '/',

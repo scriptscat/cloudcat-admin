@@ -102,9 +102,6 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
   return {
     rightContentRender: () => <RightContent />,
     disableContentMargin: false,
-    waterMarkProps: {
-      content: initialState?.currentUser?.username,
-    },
     footerRender: () => <Footer />,
     onPageChange: () => {
       const { location } = history;
@@ -115,7 +112,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     },
     links: isDev
       ? [
-        <Link to="/umi/plugin/openapi" target="_blank">
+        <Link to="http://127.0.0.1:8080/swagger/index.html" target="_blank">
           <LinkOutlined />
           <span>OpenAPI 文档</span>
         </Link>,
