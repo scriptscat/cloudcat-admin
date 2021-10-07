@@ -2,7 +2,8 @@ import { BetaSchemaForm, ProFormCaptcha, ProFormColumnsType } from "@ant-design/
 import { PageContainer } from "@ant-design/pro-layout";
 import ProCard from '@ant-design/pro-card';
 import { LockOutlined } from "@ant-design/icons";
-import { Button, message } from "antd";
+import { Alert, Button, message } from "antd";
+import UploadAvatar from "@/components/User/UploadAvatar";
 
 
 type DataItem = {
@@ -122,21 +123,37 @@ const changeInfo: ProFormColumnsType<DataItem>[] = [
 export default (): React.ReactNode => {
 	return (
 		<PageContainer>
+			<Alert
+				message="内容还在建设中哦,下面功能只是样式,无法正常使用"
+				type="error"
+				showIcon
+				banner
+				style={{
+					margin: -12,
+					marginBottom: 24,
+				}}
+			/>
 			<ProCard.Group split="horizontal">
-				<ProCard title='用户信息' headerBordered>
-					<BetaSchemaForm<DataItem>
-						submitter={{
-							// 配置按钮文本
-							searchConfig: {
-								submitText: '修改信息',
-							},
-						}}
-						layoutType='Form'
-						onFinish={async (values) => {
-							console.log(values);
-						}}
-						columns={changeInfo}
-					/>
+				<ProCard title='用户信息'>
+					<ProCard colSpan="500px">
+						<BetaSchemaForm<DataItem>
+							submitter={{
+								// 配置按钮文本
+								searchConfig: {
+									submitText: '修改信息',
+								},
+							}}
+							layoutType='Form'
+							onFinish={async (values) => {
+								console.log(values);
+							}}
+							columns={changeInfo}
+						/>
+					</ProCard>
+					<ProCard>
+						<UploadAvatar />
+						<span>更新头像</span>
+					</ProCard>
 				</ProCard>
 				<ProCard title='修改密码' headerBordered>
 					<BetaSchemaForm<DataItem>
