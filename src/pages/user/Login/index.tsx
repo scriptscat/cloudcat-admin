@@ -35,7 +35,7 @@ const LoginMessage: React.FC<{
 
 const Login: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
-  const [userLoginState, setUserLoginState] = useState<API.ApiRespond<undefined>>({
+  const [userLoginState, setUserLoginState] = useState<API.ApiResponse<undefined>>({
     code: 0,
     msg: '',
     data: undefined,
@@ -236,18 +236,22 @@ const Login: React.FC = () => {
                   <ProFormCheckbox noStyle name="auto_login">
                     <FormattedMessage id="pages.login.rememberMe" defaultMessage="自动登录" />
                   </ProFormCheckbox>
-                  <a
+                  <Space
                     style={{
                       float: 'right',
                     }}
-                    onClick={() => setType('register')}
+                    size={'small'}
                   >
-                    注册账号
-                  </a>
+                    <Link to={{ pathname: 'forget-password' }} style={{ marginRight: '10px' }}>找回密码</Link>
+                    <a
+                      onClick={() => setType('register')}
+                    >
+                      注册账号
+                    </a>
+                  </Space>
                 </div>
               </>
             )}
-
             {type === 'register' && (
               <>
                 <ProFormText

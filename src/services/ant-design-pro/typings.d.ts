@@ -54,6 +54,10 @@ declare namespace API {
     type?: string;
   };
 
+  type ForgetPasswordParams = {
+    email: string
+  };
+
   type ErrorResponse = {
     /** 业务约定的错误码 */
     errorCode: string;
@@ -85,7 +89,7 @@ declare namespace API {
     type?: NoticeIconItemType;
   };
 
-  type ApiRespond<T> = {
+  type ApiResponse<T> = {
     code: number;
     msg: string;
     data: T;

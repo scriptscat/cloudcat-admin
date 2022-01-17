@@ -8,9 +8,19 @@
         routes: [
           {
             name: 'login',
-            path: '/user/login',
+            path: 'login',
             component: './user/Login',
           },
+          {
+            name: 'forget-password',
+            path: 'forget',
+            component: './user/Login/forget'
+          },
+          {
+            name: 'reset-password',
+            path: 'reset',
+            component: './user/Login/reset'
+          }
         ],
       },
       {

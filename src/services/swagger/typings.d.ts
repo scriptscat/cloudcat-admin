@@ -44,9 +44,4 @@ declare namespace API {
     status?: 'available' | 'pending' | 'sold';
   };
 
-  type ApiResponse = {
-    code?: number;
-    type?: string;
-    message?: string;
-  };
 }

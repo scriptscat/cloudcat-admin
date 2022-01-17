@@ -66,7 +66,7 @@ export async function getInitialState(): Promise<{
     return undefined;
   };
   // 如果是登录页面，不执行
-  if (!history.location.pathname.startsWith(loginPath)) {
+  if (!history.location.pathname.startsWith('/user/')) {
     const currentUser = await fetchUserInfo();
     return {
       fetchUserInfo,
@@ -88,7 +88,7 @@ export async function getInitialState(): Promise<{
         settings: {},
       };
     } catch (error) {
-      console.log('redirect error: ' + error);
+      console.log(`redirect error: ${error}`);
     }
   }
   return {
@@ -106,21 +106,21 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     onPageChange: () => {
       const { location } = history;
       // 如果没有登录，重定向到 login
-      if (!initialState?.currentUser && !location.pathname.startsWith(loginPath)) {
+      if (!initialState?.currentUser && !location.pathname.startsWith('/user/')) {
         history.push(loginPath);
       }
     },
     links: isDev
       ? [
-        <Link to="http://127.0.0.1:8080/swagger/index.html" target="_blank">
-          <LinkOutlined />
-          <span>OpenAPI 文档</span>
-        </Link>,
-        <Link to="/~docs">
-          <BookOutlined />
-          <span>业务组件文档</span>
-        </Link>,
-      ]
+          <Link to="http://127.0.0.1:8080/swagger/index.html" target="_blank">
+            <LinkOutlined />
+            <span>OpenAPI 文档</span>
+          </Link>,
+          <Link to="/~docs">
+            <BookOutlined />
+            <span>业务组件文档</span>
+          </Link>,
+        ]
       : [],
     menuHeaderRender: undefined,
     // 自定义 403 页面
