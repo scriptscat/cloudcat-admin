@@ -242,7 +242,7 @@ const Login: React.FC = () => {
                     }}
                     size={'small'}
                   >
-                    <Link to={{ pathname: 'forget-password' }} style={{ marginRight: '10px' }}>找回密码</Link>
+                    <Link to={{ pathname: '/user/forget-password' }} style={{ marginRight: '10px' }}>找回密码</Link>
                     <a
                       onClick={() => setType('register')}
                     >

@@ -35,7 +35,7 @@ const Forget: React.FC = () => {
     if (resp.code === 0) {
       message.success('请注意您的邮箱,查收重置密码邮件');
       history.push({
-        pathname: 'login',
+        pathname: '/user/login',
       });
     }
     setSubmitting(false);

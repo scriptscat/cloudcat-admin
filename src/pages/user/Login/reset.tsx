@@ -48,7 +48,7 @@ const ResetPassword: React.FC = () => {
     if (resp.code === 0) {
       message.success('重置成功,请重新登录');
       history.push({
-        pathname: 'login',
+        pathname: '/user/login',
       });
     }
     setSubmitting(false);
