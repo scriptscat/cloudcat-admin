@@ -1,4 +1,4 @@
-import { forgetPassword, validResetPassword } from '@/services/ant-design-pro/login';
+import { resetPassword, validResetPassword } from '@/services/ant-design-pro/login';
 import { LockOutlined } from '@ant-design/icons';
 import ProForm, { ProFormText } from '@ant-design/pro-form';
 import { Typography, Alert, message } from 'antd';
@@ -19,6 +19,18 @@ const Message: React.FC<{
   />
 );
 
+const token = (history.location.query && (history.location.query.code || '')) as string;
+if (token) {
+  validResetPassword(token).then((resp) => {
+    if (resp.code !== 0) {
+      message.error(resp.msg);
+      history.push({ pathname: 'login' });
+    }
+  });
+} else {
+  history.push({ pathname: 'login' });
+}
+
 const ResetPassword: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [forgetState, setForgetState] = useState<API.ApiResponse<undefined>>({
@@ -27,22 +39,11 @@ const ResetPassword: React.FC = () => {
     data: undefined,
   });
   const { code, msg } = forgetState;
-  const token = history.location.query && (history.location.query.code || '');
-  if (token) {
-    validResetPassword(typeof token === 'string' ? token : token[0]).then((resp) => {
-      if (resp.code !== 0) {
-        message.error(resp.msg);
-        history.push({ pathname: 'login' });
-      }
-    });
-  } else {
-    history.push({ pathname: 'login' });
-    return <></>;
-  }
 
-  const handleSubmit = async (param: API.ForgetPasswordParams) => {
+
+  const handleSubmit = async (param: API.ResetPasswordParams) => {
     setSubmitting(true);
-    const resp = await forgetPassword(param.email);
+    const resp = await resetPassword(param);
     setForgetState(resp);
     if (resp.code === 0) {
       message.success('重置成功,请重新登录');
@@ -70,9 +71,6 @@ const ResetPassword: React.FC = () => {
           <div className={styles.main}>
             <Typography.Title level={5}>请输入您的新密码</Typography.Title>
             <ProForm
-              initialValues={{
-                auto_login: true,
-              }}
               submitter={{
                 render: (_, dom) => dom.pop(),
                 submitButtonProps: {
@@ -83,8 +81,10 @@ const ResetPassword: React.FC = () => {
                   },
                 },
               }}
-              onFinish={async (values) => {
-                await handleSubmit(values as API.ForgetPasswordParams);
+              onFinish={async (values: API.ResetPasswordParams) => {
+                const data = values;
+                data.code = token;
+                await handleSubmit(values);
               }}
             >
               {code !== 0 && <Message content={msg} />}

@@ -58,6 +58,12 @@ declare namespace API {
     email: string
   };
 
+  type ResetPasswordParams = {
+    code: string
+    password: string
+    repassword: string
+  };
+
   type ErrorResponse = {
     /** 业务约定的错误码 */
     errorCode: string;

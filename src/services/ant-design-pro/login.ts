@@ -46,17 +46,11 @@ export async function validResetPassword(code: string): Promise<API.ApiResponse<
 }
 
 export async function resetPassword(
-  code: string,
-  password: string,
-  repassword: string,
+  param: API.ResetPasswordParams
 ): Promise<API.ApiResponse<undefined>> {
   return request('/api/v1/account/reset-password', {
     method: 'POST',
     requestType: 'form',
-    data: {
-      code,
-      password,
-      repassword,
-    },
+    data: param,
   });
 }

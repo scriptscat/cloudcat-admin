@@ -40,7 +40,6 @@ const Forget: React.FC = () => {
     }
     setSubmitting(false);
   };
-  console.log(123);
   return (
     <div className={styles.container}>
       <div className={styles.content}>
@@ -57,9 +56,6 @@ const Forget: React.FC = () => {
         <div className={styles.main}>
           <Typography.Title level={5}>使用邮箱接收重置密码的邮件</Typography.Title>
           <ProForm
-            initialValues={{
-              auto_login: true,
-            }}
             submitter={{
               render: (_, dom) => dom.pop(),
               submitButtonProps: {

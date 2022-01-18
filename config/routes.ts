@@ -13,12 +13,12 @@
           },
           {
             name: 'forget-password',
-            path: 'forget',
+            path: 'forget-password',
             component: './user/Login/forget'
           },
           {
             name: 'reset-password',
-            path: 'reset',
+            path: 'reset-password',
             component: './user/Login/reset'
           }
         ],
