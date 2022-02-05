@@ -1,13 +1,10 @@
 // https://umijs.org/config/
 import { defineConfig } from 'umi';
 import { join } from 'path';
-
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 import routes from './routes';
-
 const { REACT_APP_ENV } = process.env;
-
 export default defineConfig({
   hash: true,
   antd: {},
@@ -20,8 +17,6 @@ export default defineConfig({
     siderWidth: 208,
     ...defaultSettings,
   },
-  // https://umijs.org/zh-CN/plugins/plugin-locale
-  locale: {},
   dynamicImport: {
     loading: '@ant-design/pro-layout/es/PageLoading',
   },
@@ -59,7 +54,9 @@ export default defineConfig({
       projectName: 'swagger',
     },
   ],
-  nodeModulesTransform: { type: 'none' },
+  nodeModulesTransform: {
+    type: 'none',
+  },
   mfsu: {},
   webpack5: {},
   exportStatic: {},

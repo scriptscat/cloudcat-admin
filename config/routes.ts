@@ -1,4 +1,4 @@
-﻿export default [
+export default [
   {
     path: '/user',
     layout: false,
@@ -7,20 +7,20 @@
         path: '/user',
         routes: [
           {
-            name: 'login',
+            name: '登录',
             path: 'login',
             component: './user/Login',
           },
           {
-            name: 'forget-password',
+            name: '忘记密码',
             path: 'forget-password',
-            component: './user/Login/forget'
+            component: './user/Login/forget',
           },
           {
-            name: 'reset-password',
+            name: '重置密码',
             path: 'reset-password',
-            component: './user/Login/reset'
-          }
+            component: './user/Login/reset',
+          },
         ],
       },
       {
@@ -30,20 +30,20 @@
   },
   {
     path: '/welcome',
-    name: 'welcome',
+    name: '欢迎',
     icon: 'smile',
     component: './Welcome',
   },
   {
     path: '/admin',
-    name: 'admin',
+    name: '管理页',
     icon: 'crown',
     access: 'canAdmin',
     component: './Admin',
     routes: [
       {
         path: '/admin/sub-page',
-        name: 'sub-page',
+        name: '二级管理页',
         icon: 'smile',
         component: './Welcome',
       },
@@ -54,18 +54,22 @@
   },
   {
     path: '/account',
+    name: '个人中心',
+    hideInMenu: true,
+    icon: 'user',
     routes: [
       {
+        name: '用户中心',
         path: '/account/center',
-        name: '个人中心',
         component: './account/Center',
       },
       {
-        path: '/account/settings',
         name: '个人设置',
+        icon: 'smile',
+        path: '/account/settings',
         component: './account/Settings',
-      }
-    ]
+      },
+    ],
   },
   {
     path: '/',

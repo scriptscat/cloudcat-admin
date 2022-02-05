@@ -8,17 +8,18 @@ import {
 import { Alert, Space, message, Tabs, Modal, Button } from 'antd';
 import React, { useState } from 'react';
 import ProForm, { ProFormCaptcha, ProFormCheckbox, ProFormText } from '@ant-design/pro-form';
-import { Link, history, FormattedMessage, useModel } from 'umi';
+import { Link, history, useModel } from 'umi';
 import Footer from '@/components/Footer';
-import { login, register } from '@/services/ant-design-pro/api';
-import { getEmailCaptcha, getWxQRCode, getWxQRCodeStatus } from '@/services/ant-design-pro/login';
+import { login, register } from '@/services/cloudcat/api';
+import { getEmailCaptcha, getWxQRCode, getWxQRCodeStatus } from '@/services/cloudcat/login';
 import { parse } from 'querystring';
-
 import styles from './index.less';
 
 const { search } = history.location;
 const param = parse(search.substr(1));
-const { redirect } = param as { redirect: string };
+const { redirect } = param as {
+  redirect: string;
+};
 
 const LoginMessage: React.FC<{
   content: string;
@@ -45,58 +46,69 @@ const Login: React.FC = () => {
 
   const fetchUserInfo = async () => {
     const userInfo = await initialState?.fetchUserInfo?.();
+
     if (userInfo) {
-      await setInitialState((s: any) => ({
-        ...s,
-        currentUser: userInfo,
-      }));
+      await setInitialState((s: any) => ({ ...s, currentUser: userInfo }));
     }
   };
 
   const loginForm = async (values: API.LoginParams) => {
     setSubmitting(true);
+
     try {
       // 登录
       const msg = await login({ ...values, type });
+
       if (msg.code === 0) {
         message.success('登录成功！');
+
         if (redirect === 'scriptcat') {
           window.close();
           return;
         }
+
         await fetchUserInfo();
         history.push(redirect || '/');
         return;
-      }
-      // 如果失败去设置用户错误信息
+      } // 如果失败去设置用户错误信息
+
       setUserLoginState(msg);
     } catch (error) {
       message.error('登录失败，请重试！');
     }
+
     setSubmitting(false);
   };
 
   const registerForm = async (values: API.LoginParams) => {
     setSubmitting(true);
+
     try {
       // 登录
       const msg = await register({ ...values, type });
+
       if (msg.code === 0) {
         message.success('注册成功！快去登录吧！');
         setType('account');
         setSubmitting(false);
         return;
-      }
-      // 如果失败去设置用户错误信息
+      } // 如果失败去设置用户错误信息
+
       setUserLoginState(msg);
     } catch (error) {
       message.error('登录失败，请重试！');
     }
+
     setSubmitting(false);
   };
 
   const handleSubmit = (values: API.LoginParams) => {
-    setUserLoginState({ code: 0, msg: '', data: undefined });
+    setUserLoginState({
+      code: 0,
+      msg: '',
+      data: undefined,
+    });
+
     if (type === 'account') {
       loginForm(values);
     } else {
@@ -105,24 +117,30 @@ const Login: React.FC = () => {
   };
 
   const [isShowWxQRCode, setIsShowWxQRCode] = useState(false);
+  const [wxQRCodeUrl, setWxQRCodeUrl] = useState({
+    url: '/assert/image/wxsvc.png',
+    code: '',
+  }); // 显示微信二维码
 
-  const [wxQRCodeUrl, setWxQRCodeUrl] = useState({ url: '/assert/image/wxsvc.png', code: '' });
-  // 显示微信二维码
   const showWxQRCode = async () => {
     try {
       setIsShowWxQRCode(true);
       const ret = await getWxQRCode();
       setWxQRCodeUrl(ret.data);
+
       const handle = async (isshow: boolean) => {
         if (isshow) {
           try {
             const status = await getWxQRCodeStatus(ret.data.code);
+
             if (status.code === 0) {
               message.success('登录成功！');
+
               if (redirect === 'scriptcat') {
                 window.close();
                 return;
               }
+
               await fetchUserInfo();
               history.push(redirect || '/');
             } else {
@@ -139,6 +157,7 @@ const Login: React.FC = () => {
           }
         }
       };
+
       return setTimeout(() => {
         setIsShowWxQRCode((v) => {
           handle(v);
@@ -156,7 +175,6 @@ const Login: React.FC = () => {
   };
 
   const { code, msg } = userLoginState;
-
   return (
     <div className={styles.container}>
       <div className={styles.content}>
@@ -234,7 +252,7 @@ const Login: React.FC = () => {
                   }}
                 >
                   <ProFormCheckbox noStyle name="auto_login">
-                    <FormattedMessage id="pages.login.rememberMe" defaultMessage="自动登录" />
+                    自动登录
                   </ProFormCheckbox>
                   <Space
                     style={{
@@ -242,12 +260,17 @@ const Login: React.FC = () => {
                     }}
                     size={'small'}
                   >
-                    <Link to={{ pathname: '/user/forget-password' }} style={{ marginRight: '10px' }}>找回密码</Link>
-                    <a
-                      onClick={() => setType('register')}
+                    <Link
+                      to={{
+                        pathname: '/user/forget-password',
+                      }}
+                      style={{
+                        marginRight: '10px',
+                      }}
                     >
-                      注册账号
-                    </a>
+                      找回密码
+                    </Link>
+                    <a onClick={() => setType('register')}>注册账号</a>
                   </Space>
                 </div>
               </>
@@ -304,18 +327,14 @@ const Login: React.FC = () => {
                     if (timing) {
                       return `${count} 秒后重新获取`;
                     }
+
                     return '获取验证码';
                   }}
                   name="captcha"
                   rules={[
                     {
                       required: true,
-                      message: (
-                        <FormattedMessage
-                          id="pages.login.captcha.required"
-                          defaultMessage="请输入验证码！"
-                        />
-                      ),
+                      message: '验证码是必填项！',
                     },
                     {
                       pattern: /^\d{6}$/,
@@ -325,10 +344,12 @@ const Login: React.FC = () => {
                   phoneName="email"
                   onGetCaptcha={async (email) => {
                     const result = await getEmailCaptcha(email);
+
                     if (result.code !== 0) {
                       message.error(result.msg);
                       return;
                     }
+
                     message.success('获取验证码成功！请注意查收！');
                   }}
                 />
@@ -373,6 +394,7 @@ const Login: React.FC = () => {
                         if (!value || getFieldValue('password') === value) {
                           return Promise.resolve();
                         }
+
                         return Promise.reject(new Error('两次输入的密码必须匹配'));
                       },
                     }),
@@ -399,11 +421,9 @@ const Login: React.FC = () => {
           <Space className={styles.other}>
             <WechatOutlined className={styles.icon} onClick={showWxQRCode} />
             <a
-              href={
-                `/api/v1/auth/bbs?redirect=${encodeURIComponent(
-                  redirect === 'scriptcat' ? '/user/login/?redirect=scriptcat' : (redirect || '/'),
-                )}`
-              }
+              href={`/api/v1/auth/bbs?redirect=${encodeURIComponent(
+                redirect === 'scriptcat' ? '/user/login/?redirect=scriptcat' : redirect || '/',
+              )}`}
             >
               <AppstoreOutlined className={styles.icon} />
             </a>

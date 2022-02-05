@@ -1,186 +1,111 @@
-import { BetaSchemaForm, ProFormCaptcha, ProFormColumnsType } from "@ant-design/pro-form";
-import { PageContainer } from "@ant-design/pro-layout";
-import ProCard from '@ant-design/pro-card';
-import { LockOutlined } from "@ant-design/icons";
-import { Alert, Button, message } from "antd";
-import UploadAvatar from "@/components/User/UploadAvatar";
+import React, { useState, useRef, useLayoutEffect } from 'react';
+import { GridContent } from '@ant-design/pro-layout';
+import { Menu } from 'antd';
+import BaseView from './components/base';
+import BindingView from './components/binding';
+import NotificationView from './components/notification';
+import SecurityView from './components/security';
+import styles from './style.less';
 
+const { Item } = Menu;
 
-type DataItem = {
-	name: string;
-	state: string;
+type SettingsStateKeys = 'base' | 'security' | 'binding' | 'notification';
+type SettingsState = {
+  mode: 'inline' | 'horizontal';
+  selectKey: SettingsStateKeys;
 };
 
-const changePassword: ProFormColumnsType<DataItem>[] = [
-	{
-		title: '旧密码',
-		dataIndex: 'old-password',
-		formItemProps: {
-			rules: [
-				{
-					required: true,
-					message: '此项为必填项',
-				},
-			],
-		},
-		valueType: 'password',
-		width: 'm',
-	},
-	{
-		title: '新密码',
-		dataIndex: 'new-password',
-		formItemProps: {
-			rules: [
-				{
-					required: true,
-					message: '此项为必填项',
-				},
-			],
-		},
-		valueType: 'password',
-		width: 'm',
-	},
-	{
-		title: '确认新密码',
-		dataIndex: 'confirm-password',
-		formItemProps: {
-			rules: [
-				{
-					required: true,
-					message: '此项为必填项',
-				},
-			],
-		},
-		valueType: 'password',
-		width: 'm',
-	},
-];
+const Settings: React.FC = () => {
+  const menuMap: Record<string, React.ReactNode> = {
+    base: '基本设置',
+    security: '安全设置',
+    binding: '账号绑定',
+    notification: '新消息通知',
+  };
 
+  const [initConfig, setInitConfig] = useState<SettingsState>({
+    mode: 'inline',
+    selectKey: 'base',
+  });
+  const dom = useRef<HTMLDivElement>();
 
-const changeInfo: ProFormColumnsType<DataItem>[] = [
-	{
-		title: '用户名',
-		dataIndex: 'username',
-		formItemProps: {
-			rules: [
-				{
-					required: true,
-					message: '此项为必填项',
-				},
-			],
-		},
-		width: 'm',
-	},
-	{
-		title: '邮箱',
-		dataIndex: 'email',
-		formItemProps: {
-			rules: [
-				{
-					required: true,
-					message: '此项为必填项',
-				},
-			],
-		},
-		width: 'm',
-	},
-	{
-		title: '验证码',
-		dataIndex: 'captcha',
-		formItemProps: {
-			rules: [
-				{
-					required: true,
-					message: '此项为必填项',
-				},
-			],
-		},
-		renderFormItem: () => {
-			return <div className='pro-field-m'>
-				<ProFormCaptcha
-					fieldProps={{
-						prefix: <LockOutlined className={'prefixIcon'} />,
-					}
-					}
-					placeholder={'请输入验证码'}
-					captchaTextRender={(timing, count) => {
-						if (timing) {
-							return `${count} ${'获取验证码'}`;
-						}
-						return '获取验证码';
-					}}
-					name="captcha"
-					onGetCaptcha={async () => {
-						message.success('获取验证码成功！验证码为：1234');
-					}}
-				/>
-			</div>
-		},
-		width: 'm',
-	},
-];
+  const resize = () => {
+    requestAnimationFrame(() => {
+      if (!dom.current) {
+        return;
+      }
+      let mode: 'inline' | 'horizontal' = 'inline';
+      const { offsetWidth } = dom.current;
+      if (dom.current.offsetWidth < 641 && offsetWidth > 400) {
+        mode = 'horizontal';
+      }
+      if (window.innerWidth < 768 && offsetWidth > 400) {
+        mode = 'horizontal';
+      }
+      setInitConfig({ ...initConfig, mode: mode as SettingsState['mode'] });
+    });
+  };
 
-export default (): React.ReactNode => {
-	return (
-		<PageContainer>
-			<Alert
-				message="内容还在建设中哦,下面功能只是样式,无法正常使用"
-				type="error"
-				showIcon
-				banner
-				style={{
-					margin: -12,
-					marginBottom: 24,
-				}}
-			/>
-			<ProCard.Group split="horizontal">
-				<ProCard title='用户信息'>
-					<ProCard colSpan="500px">
-						<BetaSchemaForm<DataItem>
-							submitter={{
-								// 配置按钮文本
-								searchConfig: {
-									submitText: '修改信息',
-								},
-							}}
-							layoutType='Form'
-							onFinish={async (values) => {
-								console.log(values);
-							}}
-							columns={changeInfo}
-						/>
-					</ProCard>
-					<ProCard>
-						<UploadAvatar />
-						<span>更新头像</span>
-					</ProCard>
-				</ProCard>
-				<ProCard title='修改密码' headerBordered>
-					<BetaSchemaForm<DataItem>
-						submitter={{
-							// 配置按钮文本
-							searchConfig: {
-								submitText: '修改密码',
-							},
-						}}
-						layoutType='Form'
-						onFinish={async (values) => {
-							console.log(values);
-						}}
-						columns={changePassword}
-					/>
-				</ProCard>
-				<ProCard title='三方登录' headerBordered>
-					<ProCard title="微信登录" bordered>
-						<Button type="primary">绑定</Button>
-						<Button type="primary" danger>解绑</Button>
-					</ProCard>
-					<ProCard title="油猴中文网登录" bordered>
-						<Button type="primary">绑定</Button>
-						<Button type="primary" danger>解绑</Button>
-					</ProCard>
-				</ProCard>
-			</ProCard.Group>
-		</PageContainer>
-	);
-}
+  useLayoutEffect(() => {
+    if (dom.current) {
+      window.addEventListener('resize', resize);
+      resize();
+    }
+    return () => {
+      window.removeEventListener('resize', resize);
+    };
+  }, [dom.current]);
+
+  const getMenu = () => {
+    return Object.keys(menuMap).map((item) => <Item key={item}>{menuMap[item]}</Item>);
+  };
+
+  const renderChildren = () => {
+    const { selectKey } = initConfig;
+    switch (selectKey) {
+      case 'base':
+        return <BaseView />;
+      case 'security':
+        return <SecurityView />;
+      case 'binding':
+        return <BindingView />;
+      case 'notification':
+        return <NotificationView />;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <GridContent>
+      <div
+        className={styles.main}
+        ref={(ref) => {
+          if (ref) {
+            dom.current = ref;
+          }
+        }}
+      >
+        <div className={styles.leftMenu}>
+          <Menu
+            mode={initConfig.mode}
+            selectedKeys={[initConfig.selectKey]}
+            onClick={({ key }) => {
+              setInitConfig({
+                ...initConfig,
+                selectKey: key as SettingsStateKeys,
+              });
+            }}
+          >
+            {getMenu()}
+          </Menu>
+        </div>
+        <div className={styles.right}>
+          <div className={styles.title}>{menuMap[initConfig.selectKey]}</div>
+          {renderChildren()}
+        </div>
+      </div>
+    </GridContent>
+  );
+};
+export default Settings;

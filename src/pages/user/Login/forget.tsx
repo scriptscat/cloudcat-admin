@@ -1,4 +1,4 @@
-import { forgetPassword } from '@/services/ant-design-pro/login';
+import { forgetPassword } from '@/services/cloudcat/login';
 import { MailOutlined } from '@ant-design/icons';
 import ProForm, { ProFormText } from '@ant-design/pro-form';
 import { Typography, Alert, message } from 'antd';

@@ -1,4 +1,4 @@
-import { resetPassword, validResetPassword } from '@/services/ant-design-pro/login';
+import { resetPassword, validResetPassword } from '@/services/cloudcat/login';
 import { LockOutlined } from '@ant-design/icons';
 import ProForm, { ProFormText } from '@ant-design/pro-form';
 import { Typography, Alert, message } from 'antd';
@@ -39,7 +39,6 @@ const ResetPassword: React.FC = () => {
     data: undefined,
   });
   const { code, msg } = forgetState;
-
 
   const handleSubmit = async (param: API.ResetPasswordParams) => {
     setSubmitting(true);

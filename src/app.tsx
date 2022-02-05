@@ -4,7 +4,7 @@ import type { RequestConfig, RunTimeLayoutConfig } from 'umi';
 import { history, Link } from 'umi';
 import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
-import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
+import { currentUser as queryCurrentUser } from './services/cloudcat/api';
 import { BookOutlined, LinkOutlined } from '@ant-design/icons';
 import { message } from 'antd';
 import { parse } from 'querystring';
@@ -112,10 +112,10 @@ export const layout: RunTimeLayoutConfig = ({ initialState }) => {
     },
     links: isDev
       ? [
-          <Link to="http://127.0.0.1:8080/swagger/index.html" target="_blank">
+          <a href="http://127.0.0.1:8080/swagger/index.html" target="_blank">
             <LinkOutlined />
             <span>OpenAPI 文档</span>
-          </Link>,
+          </a>,
           <Link to="/~docs">
             <BookOutlined />
             <span>业务组件文档</span>
