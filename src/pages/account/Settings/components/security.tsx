@@ -1,45 +1,110 @@
 import React from 'react';
-import { List } from 'antd';
+import { List, message } from 'antd';
+import { useModel } from 'umi';
+import type { ProFormColumnsType } from '@ant-design/pro-form';
+import { BetaSchemaForm } from '@ant-design/pro-form';
+import type { UpdatePassword } from '../data';
+import { updatePassword } from '../service';
 
 type Unpacked<T> = T extends (infer U)[] ? U : T;
 
-const passwordStrength = {
-  strong: <span className="strong">强</span>,
-  medium: <span className="medium">中</span>,
-  weak: <span className="weak">弱 Weak</span>,
+type DataItem = {
+  name: string;
+  state: string;
 };
 
+const changePasswordColumns: ProFormColumnsType<DataItem>[] = [
+  {
+    title: '旧密码',
+    dataIndex: 'old-password',
+    formItemProps: {
+      rules: [
+        {
+          required: true,
+          message: '此项为必填项',
+        },
+      ],
+    },
+    valueType: 'password',
+    width: 'm',
+  },
+  {
+    title: '新密码',
+    dataIndex: 'password',
+    formItemProps: {
+      rules: [
+        {
+          required: true,
+          message: '此项为必填项',
+        },
+      ],
+    },
+    valueType: 'password',
+    width: 'm',
+  },
+  {
+    title: '确认新密码',
+    dataIndex: 'repassword',
+    formItemProps: {
+      rules: [
+        {
+          required: true,
+          message: '此项为必填项',
+        },
+      ],
+    },
+    valueType: 'password',
+    width: 'm',
+  },
+];
+
 const SecurityView: React.FC = () => {
+  const { initialState } = useModel('@@initialState');
+
+  const { currentUser } = initialState!;
+
+  const changePassword = (form: UpdatePassword) => {
+    return new Promise((resolve) => {
+      updatePassword(form).then((ret) => {
+        if (ret.code === 0) {
+          message.success('密码更新成功');
+          resolve(true);
+        } else {
+          message.warn(ret.msg);
+          resolve(false);
+        }
+      });
+    });
+  };
+
   const getData = () => [
     {
       title: '账户密码',
-      description: (
+      description: <></>,
+      actions: [
         <>
-          当前密码强度：
-          {passwordStrength.strong}
-        </>
-      ),
+          <BetaSchemaForm<DataItem>
+            title="修改密码"
+            trigger={<a>修改</a>}
+            preserve={false}
+            width="400px"
+            submitter={{
+              // 配置按钮文本
+              searchConfig: {
+                submitText: '修改密码',
+              },
+            }}
+            layoutType="ModalForm"
+            columns={changePasswordColumns}
+            onFinish={changePassword}
+          />
+        </>,
+      ],
+    },
+    {
+      title: '绑定邮箱',
+      description: <>已绑定邮箱：{currentUser!.email}</>,
       actions: [<a key="Modify">修改</a>],
-    },
-    {
-      title: '密保手机',
-      description: `已绑定手机：138****8293`,
-      actions: [<a key="Modify">修改</a>],
-    },
-    {
-      title: '密保问题',
-      description: '未设置密保问题，密保问题可有效保护账户安全',
-      actions: [<a key="Set">设置</a>],
-    },
-    {
-      title: '备用邮箱',
-      description: `已绑定邮箱：ant***sign.com`,
-      actions: [<a key="Modify">修改</a>],
-    },
-    {
-      title: 'MFA 设备',
-      description: '未绑定 MFA 设备，绑定后，可以进行二次确认',
-      actions: [<a key="bind">绑定</a>],
     },
   ];
 

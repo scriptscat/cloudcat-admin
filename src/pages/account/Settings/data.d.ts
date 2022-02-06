@@ -41,3 +41,13 @@ export type CurrentUser = {
   address: string;
   phone: string;
 };
+
+export type UpdateUserInfo = {
+  username: string;
+};
+
+export type UpdatePassword = {
+  oldPassword: string;
+  password: string;
+  repassword: string;
+};

@@ -4,8 +4,8 @@ import { request } from 'umi';
 
 /** 获取当前的用户 GET /api/v1/user */
 export async function currentUser(options?: { [key: string]: any }) {
-  return new Promise<API.ApiRespond<API.UserInfo>>(async (resolve, reject) => {
-    let ret = await request<API.ApiRespond<API.UserInfo>>('/api/v1/user', {
+  return new Promise<API.ApiResponse<API.UserInfo>>(async (resolve, reject) => {
+    let ret = await request<API.ApiResponse<API.UserInfo>>('/api/v1/user', {
       method: 'GET',
       ...(options || {}),
     });
@@ -27,7 +27,7 @@ export async function outLogin(options?: { [key: string]: any }) {
 
 /** 登录接口 POST /api/v1/account/login */
 export async function login(body: API.LoginParams, options?: { [key: string]: any }) {
-  return request<API.ApiRespond<undefined>>('/api/v1/account/login', {
+  return request<API.ApiResponse<undefined>>('/api/v1/account/login', {
     method: 'POST',
     requestType: 'form',
     data: body,
@@ -37,7 +37,7 @@ export async function login(body: API.LoginParams, options?: { [key: string]: an
 
 /** 注册接口 POST /api/v1/account/register */
 export async function register(body: API.LoginParams) {
-  return request<API.ApiRespond<undefined>>('/api/v1/account/register', {
+  return request<API.ApiResponse<undefined>>('/api/v1/account/register', {
     method: 'POST',
     requestType: 'form',
     data: body,
