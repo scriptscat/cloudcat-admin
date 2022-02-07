@@ -363,6 +363,8 @@ const Login: React.FC = () => {
           </ProForm>
           <Space className={styles.other}>
             <WechatLogin
+              title="微信扫码登录"
+              action="login"
               trigger={<WechatOutlined className={styles.icon} />}
               onSuccess={async () => {
                 message.success('微信登录成功');

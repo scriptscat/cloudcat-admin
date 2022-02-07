@@ -39,6 +39,8 @@ const BindingView: React.FC = () => {
       bindWx = (
         <WechatLogin
           trigger={<a>绑定</a>}
+          title="绑定微信"
+          action="bind"
           onSuccess={() => {
             message.success('微信绑定成功');
             refresh();
@@ -69,7 +71,7 @@ const BindingView: React.FC = () => {
                   message.warn(resp.msg);
                 }
               } else {
-                window.location.href = '/api/v1/auth/bbs';
+                window.location.href = '/api/v1/auth/bbs?redirect=/account/settings';
               }
             }}
           >

@@ -13,13 +13,32 @@ export async function getEmailCaptcha(email: string) {
   });
 }
 
-export async function getWxQRCode(): Promise<API.ApiResponse<API.WXQRCode>> {
+export async function getWxQRCode(
+  action: 'bind' | 'login',
+): Promise<API.ApiResponse<API.WXQRCode>> {
+  if (action == 'bind') {
+    return request('/api/v1/auth/bind/wechat/request', {
+      method: 'POST',
+    });
+  }
   return request('/api/v1/auth/wechat/request', {
     method: 'POST',
   });
 }
 
-export async function getWxQRCodeStatus(code: string): Promise<API.ApiResponse<API.WXQRCode>> {
+export async function getWxQRCodeStatus(
+  code: string,
+  action: 'bind' | 'login',
+): Promise<API.ApiResponse<API.WXQRCode>> {
+  if (action == 'bind') {
+    return request('/api/v1/auth/bind/wechat/status', {
+      method: 'POST',
+      requestType: 'form',
+      data: {
+        code: code,
+      },
+    });
+  }
   return request('/api/v1/auth/wechat/status', {
     method: 'POST',
     requestType: 'form',

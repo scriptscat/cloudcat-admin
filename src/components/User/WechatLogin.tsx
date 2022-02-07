@@ -2,10 +2,12 @@ import { getWxQRCode, getWxQRCodeStatus } from '@/services/cloudcat/login';
 import { Button, message, Modal } from 'antd';
 import React, { useState } from 'react';
 
-const WechatLogin: React.FC<{ trigger: JSX.Element; onSuccess: () => void }> = ({
-  trigger,
-  onSuccess,
-}) => {
+const WechatLogin: React.FC<{
+  trigger: JSX.Element;
+  onSuccess: () => void;
+  title: string;
+  action: 'login' | 'bind';
+}> = ({ trigger, onSuccess, title, action }) => {
   const [isShowWxQRCode, setIsShowWxQRCode] = useState(false);
   const [wxQRCodeUrl, setWxQRCodeUrl] = useState({
     url: '/assert/image/wxsvc.png',
@@ -14,7 +16,7 @@ const WechatLogin: React.FC<{ trigger: JSX.Element; onSuccess: () => void }> = (
 
   const showWxQRCode = async () => {
     try {
-      const ret = await getWxQRCode();
+      const ret = await getWxQRCode(action);
       if (ret.code !== 0) {
         return message.warn(ret.msg);
       }
@@ -25,9 +27,10 @@ const WechatLogin: React.FC<{ trigger: JSX.Element; onSuccess: () => void }> = (
       const handle = async (isshow: boolean) => {
         if (isshow) {
           try {
-            const status = await getWxQRCodeStatus(ret.data.code);
+            const status = await getWxQRCodeStatus(ret.data.code, action);
             if (status.code === 0) {
               onSuccess();
+              setIsShowWxQRCode(false);
             } else {
               setTimeout(() => {
                 setIsShowWxQRCode((v) => {
@@ -69,7 +72,7 @@ const WechatLogin: React.FC<{ trigger: JSX.Element; onSuccess: () => void }> = (
     <>
       {Trigger}
       <Modal
-        title="微信扫码登录"
+        title={title}
         visible={isShowWxQRCode}
         onCancel={() => setIsShowWxQRCode(false)}
         footer={[

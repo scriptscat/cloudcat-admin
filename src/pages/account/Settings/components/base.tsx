@@ -5,9 +5,9 @@ import ProForm, { ProFormText } from '@ant-design/pro-form';
 import { useModel } from 'umi';
 
 import styles from './BaseView.less';
-import { UpdateUserInfo } from '../data';
+import type { UpdateUserInfo } from '../data';
 import { updateUserInfo } from '../service';
-import { RcFile, UploadChangeParam } from 'antd/lib/upload';
+import type { RcFile, UploadChangeParam } from 'antd/lib/upload';
 
 // 头像组件 方便以后独立，增加裁剪之类的功能
 const AvatarView = ({ avatar }: { avatar: string }) => {
@@ -63,7 +63,7 @@ const AvatarView = ({ avatar }: { avatar: string }) => {
 };
 
 const BaseView: React.FC = () => {
-  const { initialState } = useModel('@@initialState');
+  const { initialState, setInitialState } = useModel('@@initialState');
 
   const { currentUser } = initialState!;
 
@@ -81,6 +81,13 @@ const BaseView: React.FC = () => {
   const handleFinish = async (param: UpdateUserInfo) => {
     const ret = await updateUserInfo(param);
     if (ret.code === 0) {
+      setInitialState((v) => {
+        const v1 = v;
+        if (v1 && v1.currentUser) {
+          v1.currentUser.username = param.username;
+        }
+        return v1;
+      });
       message.success('更新基本信息成功');
     } else {
       message.warn(ret.msg);
