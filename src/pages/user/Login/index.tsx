@@ -364,8 +364,14 @@ const Login: React.FC = () => {
           <Space className={styles.other}>
             <WechatLogin
               trigger={<WechatOutlined className={styles.icon} />}
-              onSuccess={() => {
-                message.success('微信绑定成功');
+              onSuccess={async () => {
+                message.success('微信登录成功');
+                if (redirect === 'scriptcat') {
+                  window.close();
+                  return;
+                }
+                await fetchUserInfo();
+                history.push(redirect || '/');
               }}
             />
             <a
