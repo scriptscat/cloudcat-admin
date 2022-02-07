@@ -5,15 +5,16 @@ import {
   MailOutlined,
   AppstoreOutlined,
 } from '@ant-design/icons';
-import { Alert, Space, message, Tabs, Modal, Button } from 'antd';
+import { Alert, Space, message, Tabs } from 'antd';
 import React, { useState } from 'react';
 import ProForm, { ProFormCaptcha, ProFormCheckbox, ProFormText } from '@ant-design/pro-form';
 import { Link, history, useModel } from 'umi';
 import Footer from '@/components/Footer';
 import { login, register } from '@/services/cloudcat/api';
-import { getEmailCaptcha, getWxQRCode, getWxQRCodeStatus } from '@/services/cloudcat/login';
+import { getEmailCaptcha } from '@/services/cloudcat/login';
 import { parse } from 'querystring';
 import styles from './index.less';
+import WechatLogin from '@/components/User/WechatLogin';
 
 const { search } = history.location;
 const param = parse(search.substr(1));
@@ -114,64 +115,6 @@ const Login: React.FC = () => {
     } else {
       registerForm(values);
     }
-  };
-
-  const [isShowWxQRCode, setIsShowWxQRCode] = useState(false);
-  const [wxQRCodeUrl, setWxQRCodeUrl] = useState({
-    url: '/assert/image/wxsvc.png',
-    code: '',
-  }); // 显示微信二维码
-
-  const showWxQRCode = async () => {
-    try {
-      setIsShowWxQRCode(true);
-      const ret = await getWxQRCode();
-      setWxQRCodeUrl(ret.data);
-
-      const handle = async (isshow: boolean) => {
-        if (isshow) {
-          try {
-            const status = await getWxQRCodeStatus(ret.data.code);
-
-            if (status.code === 0) {
-              message.success('登录成功！');
-
-              if (redirect === 'scriptcat') {
-                window.close();
-                return;
-              }
-
-              await fetchUserInfo();
-              history.push(redirect || '/');
-            } else {
-              setTimeout(() => {
-                setIsShowWxQRCode((v) => {
-                  handle(v);
-                  return v;
-                });
-              }, 1000);
-            }
-          } catch (e) {
-            message.error('系统或者网络发送错误！微信扫码请求失败！');
-            setIsShowWxQRCode(false);
-          }
-        }
-      };
-
-      return setTimeout(() => {
-        setIsShowWxQRCode((v) => {
-          handle(v);
-          return v;
-        });
-      }, 1000);
-    } catch {
-      message.error('微信二维码获取失败！');
-      return setIsShowWxQRCode(false);
-    }
-  };
-
-  const handleCancel = () => {
-    setIsShowWxQRCode(false);
   };
 
   const { code, msg } = userLoginState;
@@ -419,7 +362,12 @@ const Login: React.FC = () => {
             )}
           </ProForm>
           <Space className={styles.other}>
-            <WechatOutlined className={styles.icon} onClick={showWxQRCode} />
+            <WechatLogin
+              trigger={<WechatOutlined className={styles.icon} />}
+              onSuccess={() => {
+                message.success('微信绑定成功');
+              }}
+            />
             <a
               href={`/api/v1/auth/bbs?redirect=${encodeURIComponent(
                 redirect === 'scriptcat' ? '/user/login/?redirect=scriptcat' : redirect || '/',
@@ -428,21 +376,6 @@ const Login: React.FC = () => {
               <AppstoreOutlined className={styles.icon} />
             </a>
           </Space>
-          <Modal
-            title="微信扫码登录"
-            visible={isShowWxQRCode}
-            onCancel={handleCancel}
-            footer={[
-              <Button key="close" onClick={handleCancel}>
-                关闭
-              </Button>,
-            ]}
-            style={{
-              textAlign: 'center',
-            }}
-          >
-            <img src={wxQRCodeUrl.url} width="200px" height="200px" />
-          </Modal>
         </div>
       </div>
       <Footer />
