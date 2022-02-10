@@ -115,18 +115,7 @@ const BaseView: React.FC = () => {
           }}
           hideRequiredMark
         >
-          <ProFormText
-            width="md"
-            name="email"
-            label="邮箱"
-            disabled
-            rules={[
-              {
-                required: true,
-                message: '请输入您的邮箱!',
-              },
-            ]}
-          />
+          <ProFormText width="md" name="email" label="邮箱" disabled placeholder="未绑定" />
           <ProFormText
             width="md"
             name="username"

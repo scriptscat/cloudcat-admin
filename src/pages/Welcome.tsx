@@ -15,7 +15,9 @@ const CodePreview: React.FC = ({ children }) => (
 export default (): React.ReactNode => {
   const { initialState } = useModel('@@initialState');
   const { currentUser } = initialState!;
-
+  if (!currentUser) {
+    return <></>;
+  }
   return (
     <PageContainer>
       <Card>
@@ -29,9 +31,7 @@ export default (): React.ReactNode => {
             marginBottom: 24,
           }}
         />
-        <Typography.Text
-          strong
-        >
+        <Typography.Text strong>
           更多功能建设中... {'  '}
           <a
             href="https://github.com/scriptscat/scriptcat/projects/1"
@@ -56,9 +56,7 @@ export default (): React.ReactNode => {
             脚本猫
           </a>
         </Typography.Text>
-        <CodePreview>
-          git clone git@github.com:scriptscat/scriptcat.git
-        </CodePreview>
+        <CodePreview>git clone git@github.com:scriptscat/scriptcat.git</CodePreview>
         <Typography.Text
           strong
           style={{
@@ -73,9 +71,7 @@ export default (): React.ReactNode => {
             云猫前端
           </a>
         </Typography.Text>
-        <CodePreview>
-          git clone git@github.com:scriptscat/cloudcat-frontend.git
-        </CodePreview>
+        <CodePreview>git clone git@github.com:scriptscat/cloudcat-frontend.git</CodePreview>
         <Typography.Text
           strong
           style={{
@@ -90,9 +86,7 @@ export default (): React.ReactNode => {
             云猫后端
           </a>
         </Typography.Text>
-        <CodePreview>
-          git clone git@github.com:scriptscat/cloudcat.git
-        </CodePreview>
+        <CodePreview>git clone git@github.com:scriptscat/cloudcat.git</CodePreview>
       </Card>
     </PageContainer>
   );
